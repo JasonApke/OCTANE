@@ -5,10 +5,10 @@ Optical Flow toolkit for Atmospheric and Earth Sciences (OCTANE)
 Jason Apke
 
 ## Uses
-OCTANE is designed to ingest GOES-R imagery and output both pixel displacements and navigated speeds (in m/s).  The algorithm is useful for retrieving winds from cloud- and water-vapor-drift motions and tracking features at a near-pixel level.
+OCTANE is designed to ingest GOES-R imagery and output both pixel displacements and navigated speeds (in m/s).  The algorithm is useful for retrieving winds from cloud- and water-vapor-drift motions and tracking features at a near-pixel level.  The algorithm does not contain height assignment internally, though cloud-top heights can be injested for use or output within the optical flow methods.
 
 ## Dependencies
-Required
+### Required
 - NVIDIA CUDA capable machine with [CUDA](https://developer.nvidia.com/cuda-toolkit) version 9 or greater
 - [netcdf](https://www.unidata.ucar.edu/software/netcdf/) and [netcdfcxx4](https://github.com/Unidata/netcdf-cxx4)
 
@@ -16,11 +16,21 @@ Required
 
 Edit the Makefile in the ./src directory, adding locations of CUDA, Netcdf, and Netcdfc++ libraries.  Also select the GENCODE_FLAGS variable with respect to your specific GPU architecture. Then to build the executable, in the .src/ directory, type:
 ```
-make
+$ make
 ```
-This creates an executable in the ./build directory. To remove build files, in the ./src directory, type:
+This creates an executable in the ./build directory. Add the build directory to your $PATH environmental variable using setenv or export for easy access to octane commands.  To remove build files, in the ./src directory, type:
 ```
-make clean
+$ make clean
+```
+
+## Running OCTANE
+When OCTANE is run without any commands, i.e.:
+```
+$ octane
+```
+the system will print a list of command line arguements.  A simple example of running the baseline variational optical flow approach would be
+```
+$ octane -f1 /path/to/data/GOES/file1.nc -f2 /path/to/data/GOES/file2.nc -alpha 5 -lambda 1 
 ```
 
 ## Development Stage and Plans
