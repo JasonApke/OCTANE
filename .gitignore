@@ -1,3 +1,5 @@
 #Ignore the build
-build/
-
+build/*.o
+build/octane
+#ignore the data directory
+data/
