@@ -1,4 +1,4 @@
-build/*.o
+octane/build/*.o
 *.o
-build/octane
-data/
+octane/build/octane
+octane/data/
