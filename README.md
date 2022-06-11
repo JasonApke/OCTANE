@@ -30,7 +30,7 @@ $ octane
 ```
 the system will print a list of command line arguements.  A simple example of running the baseline variational optical flow approach would be
 ```
-$ octane -f1 /path/to/data/GOES/file1.nc -f2 /path/to/data/GOES/file2.nc -alpha 5 -lambda 1 
+$ octane -i1 /path/to/data/GOES/file1.nc -i2 /path/to/data/GOES/file2.nc -alpha 5 -lambda 1 
 ```
 
 ## Development Stage and Plans
