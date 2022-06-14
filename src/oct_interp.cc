@@ -45,11 +45,13 @@ void oct_warpflow(double **u1, double **v1, double **sosarr, double **im1, doubl
                     if((iv2 >= 0) && (iv2 < nx) && (jv2 >= 0) && (jv2 < ny))
                     {
                         double imgdiff = (im1[i][j]-im2[posi2][posj2]);
+                        double imgdiff2 = imgdiff*imgdiff;
                         if(sosarr[posi][posj] > (imgdiff*imgdiff))
                         {
                             //passed the color constancy test
                             ut[posi][posj] = u1[i][j];
                             vt[posi][posj] = v1[i][j];
+                            sosarr[posi][posj] = imgdiff2;
                             //Here is where you splat if needed
                         }
                     }
@@ -75,11 +77,13 @@ void oct_warpflow(double **u1, double **v1, double **sosarr, double **im1, doubl
                     if((iv2 >= 0) && (iv2 < nx) && (jv2 >= 0) && (jv2 < ny))
                     {
                         double imgdiff = (im1[i][j]-im2[posi2][posj2]);
+                        double imgdiff2 = imgdiff*imgdiff;
                         if(sosarr[posi][posj] > (imgdiff*imgdiff))
                         {
                             //passed the color constancy test
                             ut[posi][posj] = u1[i][j];
                             vt[posi][posj] = v1[i][j];
+                            sosarr[posi][posj] = imgdiff2;
                             //Here is where you splat if needed
                         }
                     }
@@ -106,11 +110,13 @@ void oct_warpflow(double **u1, double **v1, double **sosarr, double **im1, doubl
                     if((iv2 >= 0) && (iv2 < nx) && (jv2 >= 0) && (jv2 < ny))
                     {
                         double imgdiff = (im1[i][j]-im2[posi2][posj2]);
+                        double imgdiff2 = imgdiff*imgdiff;
                         if(sosarr[posi][posj] > (imgdiff*imgdiff))
                         {
                             //passed the color constancy test
                             ut[posi][posj] = u1[i][j];
                             vt[posi][posj] = v1[i][j];
+                            sosarr[posi][posj] = imgdiff2;
                             //Here is where you splat if needed
                         }
                     }
@@ -136,11 +142,13 @@ void oct_warpflow(double **u1, double **v1, double **sosarr, double **im1, doubl
                     if((iv2 >= 0) && (iv2 < nx) && (jv2 >= 0) && (jv2 < ny))
                     {
                         double imgdiff = (im1[i][j]-im2[posi2][posj2]);
+                        double imgdiff2 = imgdiff*imgdiff;
                         if(sosarr[posi][posj] > (imgdiff*imgdiff))
                         {
                             //passed the color constancy test
                             ut[posi][posj] = u1[i][j];
                             vt[posi][posj] = v1[i][j];
+                            sosarr[posi][posj] = imgdiff2;
                             //Here is where you splat if needed
                         }
                     }
@@ -272,11 +280,13 @@ int oct_interp (GOESVar &geo1,GOESVar &geo2, float fr, OFFlags args)
                     if((iv2 >= 0) && (iv2 < nx) && (jv2 >= 0) && (jv2 < ny))
                     {
                         double imgdiff = (im1[i][j]-im2[posi2][posj2]);
+                        double imgdiff2 = imgdiff*imgdiff;
                         if(sosarr[posi][posj] > (imgdiff*imgdiff))
                         {
                             //passed the color constancy test
                             ut[posi][posj] = u1[i][j];
                             vt[posi][posj] = v1[i][j];
+                            sosarr[posi][posj] = imgdiff2;
                             //Baker used splatting here to reduce interpolated flow holes
                         }
                     }
