@@ -16,153 +16,37 @@ double oct_binterp(double,double,double,double,double,double,double,double,doubl
 //Still under development, use with caution J. Apke 2/23/2022
 void oct_warpflow(double **u1, double **v1, double **sosarr, double **im1, double **im2,float time,long &holecount, int nx, int ny, double **ut, double **vt)
 {
+    bool bc, bc2,bc3,bc4;
 
     for(int i = 0; i < nx; i++)
     {
         for (int j = 0; j < ny; j++)
         {
             //use u to seek u
-            double iv = round(i+time*u1[i][j]);
-            double jv = round(j+time*v1[i][j]);
-            if((iv >= 0) && (iv < nx) && (jv >= 0) && (jv < ny))
+            double iv = round(oct_bc<double>((double)(i+time*u1[i][j]),nx-1,bc));
+            double jv = round(oct_bc<double>((double)(i+time*v1[i][j]),ny-1,bc2));
+            double iv2 = round(oct_bc<double>((double)(i+u1[i][j]),nx-1,bc3));
+            double jv2 = round(oct_bc<double>((double)(i+v1[i][j]),ny-1,bc4));
+
+            for(int k = 0; k < 2; k++)
             {
-                
-                int posi = (int) iv;
-                int posj = (int) jv;
-                if(ut[posi][posj] < -998)
+                for(int l = 0; l < 2; l++)
                 {
-                    ut[posi][posj] = u1[i][j];
-                    vt[posi][posj] = v1[i][j];
-                    holecount -= 1; //found one, reduce the holecount
-                    //Here is where you splat if needed
-                } else
-                {
-                    //this is the case of multiple motions for the same pixel
-                    double iv2 = round(i + u1[i][j]);
-                    double jv2 = round(j + v1[i][j]);
+                    int posi = (int) iv+k;
+                    int posj = (int) jv+l;
                     int posi2 = (int) iv2;
                     int posj2 = (int) jv2;
-                    if((iv2 >= 0) && (iv2 < nx) && (jv2 >= 0) && (jv2 < ny))
+                    double imgdiff = (im1[i][j]-im2[posi2][posj2]); 
+                    double imgdiff2 = imgdiff*imgdiff;
+                    if((ut[posi][posj] < -998) || (sosarr[posi][posj] > imgdiff2))
                     {
-                        double imgdiff = (im1[i][j]-im2[posi2][posj2]);
-                        double imgdiff2 = imgdiff*imgdiff;
-                        if(sosarr[posi][posj] > (imgdiff*imgdiff))
-                        {
-                            //passed the color constancy test
-                            ut[posi][posj] = u1[i][j];
-                            vt[posi][posj] = v1[i][j];
-                            sosarr[posi][posj] = imgdiff2;
-                            //Here is where you splat if needed
-                        }
+                        if(ut[posi][posj] < -998) holecount -= 1; //reduce the hole count when a point is filled
+                        ut[posi][posj] = u1[i][j];
+                        vt[posi][posj] = v1[i][j];
+                        sosarr[posi][posj] = imgdiff2;
+                        //Here is where you splat if needed
                     }
 
-                    
-                } 
-                posi = ((int) iv)+1;
-                if(posi > nx-1) posi = posi-2;
-                posj = (int) jv;
-                if(ut[posi][posj] < -998)
-                {
-                    ut[posi][posj] = u1[i][j];
-                    vt[posi][posj] = v1[i][j];
-                    holecount -= 1; //found one, reduce the holecount
-                    //Here is where you splat if needed
-                } else
-                {
-                    //this is the case of multiple motions for the same pixel
-                    double iv2 = round(i + u1[i][j]);
-                    double jv2 = round(j + v1[i][j]);
-                    int posi2 = (int) iv2;
-                    int posj2 = (int) jv2;
-                    if((iv2 >= 0) && (iv2 < nx) && (jv2 >= 0) && (jv2 < ny))
-                    {
-                        double imgdiff = (im1[i][j]-im2[posi2][posj2]);
-                        double imgdiff2 = imgdiff*imgdiff;
-                        if(sosarr[posi][posj] > (imgdiff*imgdiff))
-                        {
-                            //passed the color constancy test
-                            ut[posi][posj] = u1[i][j];
-                            vt[posi][posj] = v1[i][j];
-                            sosarr[posi][posj] = imgdiff2;
-                            //Here is where you splat if needed
-                        }
-                    }
-
-                    
-                } 
-                posi = ((int) iv)+1;
-                if(posi > nx-1) posi = posi-2;
-                posj = ((int) jv)+1;
-                if(posj > ny-1) posj = posj-2;
-                if(ut[posi][posj] < -998)
-                {
-                    ut[posi][posj] = u1[i][j];
-                    vt[posi][posj] = v1[i][j];
-                    holecount -= 1; //found one, reduce the holecount
-                    //Here is where you splat if needed
-                } else
-                {
-                    //this is the case of multiple motions for the same pixel
-                    double iv2 = round(i + u1[i][j]);
-                    double jv2 = round(j + v1[i][j]);
-                    int posi2 = (int) iv2;
-                    int posj2 = (int) jv2;
-                    if((iv2 >= 0) && (iv2 < nx) && (jv2 >= 0) && (jv2 < ny))
-                    {
-                        double imgdiff = (im1[i][j]-im2[posi2][posj2]);
-                        double imgdiff2 = imgdiff*imgdiff;
-                        if(sosarr[posi][posj] > (imgdiff*imgdiff))
-                        {
-                            //passed the color constancy test
-                            ut[posi][posj] = u1[i][j];
-                            vt[posi][posj] = v1[i][j];
-                            sosarr[posi][posj] = imgdiff2;
-                            //Here is where you splat if needed
-                        }
-                    }
-
-                    
-                } 
-                posi = (int) iv;
-                posj = ((int) jv)+1;
-                if(posj > ny-1) posj = posj-2;
-                if(ut[posi][posj] < -998)
-                {
-                    ut[posi][posj] = u1[i][j];
-                    vt[posi][posj] = v1[i][j];
-                    holecount -= 1; //found one, reduce the holecount
-                    //Here is where you splat if needed
-                } else
-                {
-                    //this is the case of multiple motions for the same pixel
-                    double iv2 = round(i + u1[i][j]);
-                    double jv2 = round(j + v1[i][j]);
-                    int posi2 = (int) iv2;
-                    int posj2 = (int) jv2;
-                    if((iv2 >= 0) && (iv2 < nx) && (jv2 >= 0) && (jv2 < ny))
-                    {
-                        double imgdiff = (im1[i][j]-im2[posi2][posj2]);
-                        double imgdiff2 = imgdiff*imgdiff;
-                        if(sosarr[posi][posj] > (imgdiff*imgdiff))
-                        {
-                            //passed the color constancy test
-                            ut[posi][posj] = u1[i][j];
-                            vt[posi][posj] = v1[i][j];
-                            sosarr[posi][posj] = imgdiff2;
-                            //Here is where you splat if needed
-                        }
-                    }
-
-                    
-                } 
-            } else
-            {
-                //Else if the motion field is looking out of bounds for a value, just set to 0
-                if(ut[i][j] < -998.)
-                {
-                    ut[i][j] = 0;
-                    vt[i][j] = 0; //This is NOT an occlusion, but rather a case where the motion goes off screen, as such we must blend
-                    holecount -=1;
                 }
             }
         }
