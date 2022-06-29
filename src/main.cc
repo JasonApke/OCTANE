@@ -16,7 +16,7 @@
 #include "offlags.h"
 using namespace std;
 
-int oct_fileread(string,string,string,int,int,GOESVar &,OFFlags);
+int oct_fileread(string,string,string,int,int,GOESVar &,OFFlags &);
 int oct_filewrite(string,string,GOESVar &,OFFlags);
 int oct_interp (GOESVar &,GOESVar &, float, OFFlags);
 int oct_optical_flow(GOESVar &, GOESVar &,OFFlags &);
@@ -396,7 +396,6 @@ int main(int argc, char *argv[])
     //First step is to read the GOES data, jma_goesread/polarread/mercread fills the GOESVar variables
     
     t = oct_fileread(f1,args.ftype,"RAW",1,1,goesData,args);
-    cout << "Going on to file 2 \n";
     t = oct_fileread(f2,args.ftype,"RAW",0,1,goesData2,args);
     
     if((args.dopolar==0) && (args.domerc==0))

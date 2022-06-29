@@ -14,9 +14,10 @@ double oct_binterp(double,double,double,double,double,double,double,double,doubl
 //Baker, S., Scharstein, D., Lewis, J.P. et al. A Database and Evaluation Methodology for Optical Flow. 
 //Int J Comput Vis 92, 1–31 (2011). https://doi.org/10.1007/s11263-010-0390-2
 //Still under development, use with caution J. Apke 2/23/2022
-void oct_warpflow(double *u1, double *v1, float *sosarr, float *im1, float *im2,float time,long &holecount, int nx, int ny, float *ut, float *vt)
+void oct_warpflow(float *u1, float *v1, float *sosarr, float *im1, float *im2,float time,long &holecount, int nx, int ny, float *ut, float *vt)
 {
     bool bc, bc2,bc3,bc4;
+    long nxtny = nx*ny;
 
     for (int j = 0; j < ny; j++)
     {
@@ -25,10 +26,10 @@ void oct_warpflow(double *u1, double *v1, float *sosarr, float *im1, float *im2,
         {
             long lxyz = i+nxtj; // 
             //use u to seek u
-            int iv = (int)  round(oct_bc<double>((double)(i+time*u1[lxyz]),nx-1,bc));
-            int jv = (int)  round(oct_bc<double>((double)(j+time*v1[lxyz]),ny-1,bc2));
-            int iv2 = (int) round(oct_bc<double>((double)(i+u1[lxyz]),nx-1,bc3));
-            int jv2 = (int) round(oct_bc<double>((double)(j+v1[lxyz]),ny-1,bc4));
+            int iv = (int)  oct_bc<double>((double)(round(i+time*u1[lxyz])),nx-1,bc);
+            int jv = (int)  oct_bc<double>((double)(round(j+time*v1[lxyz])),ny-1,bc2);
+            int iv2 = (int) oct_bc<double>((double)(round(i+u1[lxyz])),nx-1,bc3);
+            int jv2 = (int) oct_bc<double>((double)(round(j+v1[lxyz])),ny-1,bc4);
 
             for(int l = 0; l < 2; l++)
             {
@@ -40,7 +41,12 @@ void oct_warpflow(double *u1, double *v1, float *sosarr, float *im1, float *im2,
                 {
                     int posi = (int) iv+k;
                     long lxyz2 = posi+nxtposj; //lxyz at posi posj, or iv+k, jv+l
-                    long lxyz3 = iv2+k + nxtposj2; //lxyz at posi2, posj2 
+                    long lxyz3 = iv2+k + nxtposj2; //lxyz at posi2, posj2
+                    if((lxyz2 >= nxtny) || (lxyz3 >= nxtny) || (lxyz >= nxtny))
+                    {
+                        cout << "Fuck " << lxyz2 << " " << lxyz3 << " " << lxyz << " " << nxtny << endl; 
+                        cout << iv2 << " " << jv2 << " " << iv2+k << " " << posj2 << " " << nx << endl;
+                    }
 
                     //int posi2 = (int) iv2;
                     //int posj2 = (int) jv2;
@@ -132,8 +138,7 @@ int oct_interp (GOESVar &geo1,GOESVar &geo2, float fr, OFFlags args)
     geo1.tint = geo1.t+(double) geo1.dT*fr;
     float time = frinv;
     //The color constancy test only uses channel1 right now, it will soon involve channels 2/3 as well
-
-    oct_warpflow(geo1.u1, geo1.v1, sosarr,geo1.data.data,geo2.data.data, time,holecount, nx, ny, ut, vt); //warps the flow up to the value of time at interpolate
+    oct_warpflow(geo1.uPix, geo1.vPix, sosarr,geo1.data.data,geo2.data.data, time,holecount, nx, ny, ut, vt); //warps the flow up to the value of time at interpolate
     //This is superfluous to above...
     //for(int i = 0; i < nx; i++)
     //{
@@ -252,7 +257,7 @@ int oct_interp (GOESVar &geo1,GOESVar &geo2, float fr, OFFlags args)
     //Now it is time for occlusion reasoning.
     // again, following Baker 2011
     //now check to ensure we have flow consistency
-    oct_warpflow(geo1.u1, geo1.v1, sosarr2,geo1.data.data,geo2.data.data, 1.,holecount2, nx, ny, ut2, vt2); //warps the flow up to the value of time at image 2
+    oct_warpflow(geo1.uPix, geo1.vPix, sosarr2,geo1.data.data,geo2.data.data, 1.,holecount2, nx, ny, ut2, vt2); //warps the flow up to the value of time at image 2
     //occlusion masks are set here
     for(int j = 0; j < ny; j++)
     {
@@ -267,12 +272,12 @@ int oct_interp (GOESVar &geo1,GOESVar &geo2, float fr, OFFlags args)
                 o1a[lxyz] = 1;
             } else
             {
-                int iv = (int) round(oct_bc<double>((double)(i+geo1.u1[lxyz]),nx-1,bc3));
-                int jv = (int) round(oct_bc<double>((double)(j+geo1.v1[lxyz]),ny-1,bc4));
+                int iv = (int) oct_bc<double>((double)(round(i+geo1.uPix[lxyz])),nx-1,bc3);
+                int jv = (int) oct_bc<double>((double)(round(j+geo1.vPix[lxyz])),ny-1,bc4);
                 long lxyz2 = iv+jv*nx;
 
-                double sqrval1 = geo1.u1[lxyz] - ut2[lxyz2];
-                double sqrval2 = geo1.v1[lxyz] - vt2[lxyz2];
+                double sqrval1 = geo1.uPix[lxyz] - ut2[lxyz2];
+                double sqrval2 = geo1.vPix[lxyz] - vt2[lxyz2];
                 if(sqrval1*sqrval1+sqrval2*sqrval2 > 0.25) //note 0.5^2 = 0.25
                 {
                     o0a[lxyz] = 1;
@@ -425,13 +430,34 @@ int oct_interp (GOESVar &geo1,GOESVar &geo2, float fr, OFFlags args)
             //long lxyz = i+nx*j;
             if(args.dopolar == 0)
             {
-                geo1.dataSVal[lxyz] = (short)((imgnew - geo1.nav.radOffset)/(geo1.nav.radScale));
-                if(args.doc2 == 1) geo1.dataSVal2[lxyz] = (short) ((imgnew2 - geo1.nav.radOffset2)/(geo1.nav.radScale2));
-                if(args.doc3 == 1) geo1.dataSVal3[lxyz] = (short) ((imgnew3 - geo1.nav.radOffset3)/(geo1.nav.radScale3));
+                //geo1.dataSVal[lxyz] = (short)((imgnew));
+                //Scale the image back to native values
+                //Note this currently assumes minout and maxout from fileread are 0 - 255, must add to args
+                float imgscale = (imgnew/255.) * (args.NormMax-args.NormMin)+args.NormMin;
+                geo1.dataSVal[lxyz] = (short)((imgscale - geo1.nav.radOffset)/(geo1.nav.radScale));
+                if(args.doc2 == 1)
+                {
+                    imgscale = (imgnew2/255.) * (args.NormMax2-args.NormMin2)+args.NormMin2;
+                    geo1.dataSVal2[lxyz] = (short) ((imgscale - geo1.nav.radOffset2)/(geo1.nav.radScale2));
+                }
+                if(args.doc3 == 1)
+                {
+                    imgscale = (imgnew3/255.) * (args.NormMax3-args.NormMin3)+args.NormMin3;
+                    geo1.dataSVal3[lxyz] = (short) ((imgnew3 - geo1.nav.radOffset3)/(geo1.nav.radScale3));
+                }
             } else {
-                geo1.dataSValfloat[lxyz] = (float) imgnew;
-                if(args.doc2 == 1) geo1.dataSValfloat2[lxyz] = (float) imgnew2;
-                if(args.doc3 == 1) geo1.dataSValfloat3[lxyz] = (float) imgnew3;
+                float imgscale = (imgnew/255.) * (args.NormMax-args.NormMin)+args.NormMin;
+                geo1.dataSValfloat[lxyz] = (float) imgscale;
+                if(args.doc2 == 1)
+                {
+                    imgscale = (imgnew2/255.) * (args.NormMax2-args.NormMin2)+args.NormMin2;
+                    geo1.dataSValfloat2[lxyz] = (float) imgscale;
+                }
+                if(args.doc3 == 1)
+                {
+                    imgscale = (imgnew3/255.) * (args.NormMax3-args.NormMin3)+args.NormMin3;
+                    geo1.dataSValfloat3[lxyz] = (float) imgscale;
+                }
 
             }
         }

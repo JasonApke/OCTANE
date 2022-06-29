@@ -9,9 +9,14 @@ using namespace std;
 using namespace netCDF;
 using namespace netCDF::exceptions;
 
-//Function: oct_goesread
-//Purpose: To read, normalize, and navigate imagery used by OCTANE
+//Function: jma_goesread
+//Purpose: This is a C++ function which reads, navigates, and calibrates GOES-R netcdf4 data
+//         Now with added functions to read/navigate polar orthonormal/mercator
 //Requires: The netcdf C++ library
+//Inputs: fpath- a full path to the netcdf file containing GOES-R Imagery
+//        cal- A setting for callibration, default is RAW, options include BRIT, TEMP, and RAW
+//        donav- set to 1 to return latitude and longitude arrays with the object, otherwise they are set to 0
+//        The reason I have this as an option is for speed purposes, navigation can slow down optical flow code if it is not needed
 //Returns: A structure containing the calbrated GOES data, with Latitude and Longitude files from navigation
 //
 //Author: Jason Apke, Updated 9/10/2018
@@ -35,7 +40,7 @@ void oct_bandminmax(int, float &, float &);
 
 
 static const int NC_ERR = 2;
-int oct_goesread (string fpath,string cal,int donav,int channelnum, GOESVar &resVar,OFFlags args)
+int oct_goesread (string fpath,string cal,int donav,int channelnum, GOESVar &resVar,OFFlags &args)
 {
     //This is a function designed for reading GOES data files
     using namespace std;
@@ -413,7 +418,7 @@ int oct_goesread (string fpath,string cal,int donav,int channelnum, GOESVar &res
     return 1;
 }
 
-int oct_polarread (string fpath,string cal,int donav,int channelnum, GOESVar &resVar,OFFlags args)
+int oct_polarread (string fpath,string cal,int donav,int channelnum, GOESVar &resVar,OFFlags &args)
 {
     //This is a function designed for reading GOES data files
     using namespace std;
@@ -603,7 +608,7 @@ int oct_polarread (string fpath,string cal,int donav,int channelnum, GOESVar &re
         }
     return 1;
 }
-int oct_mercread (string fpath,string cal,int donav,GOESVar &resVar,OFFlags args)
+int oct_mercread (string fpath,string cal,int donav,GOESVar &resVar,OFFlags &args)
 {
     //This is a function designed for reading Mercator Netcdfs
     using namespace std;
@@ -748,7 +753,7 @@ int oct_mercread (string fpath,string cal,int donav,GOESVar &resVar,OFFlags args
     return 1;
 }
 
-int oct_clavrxread (string fpath,GOESVar &resVar,OFFlags args)
+int oct_clavrxread (string fpath,GOESVar &resVar,OFFlags &args)
 {
     using namespace std;
 
@@ -809,7 +814,7 @@ int oct_clavrxread (string fpath,GOESVar &resVar,OFFlags args)
 
     return 1;
 }
-int oct_fgread (string fpath,GOESVar &resVar,OFFlags args)
+int oct_fgread (string fpath,GOESVar &resVar,OFFlags &args)
 {
     using namespace std;
 
@@ -863,7 +868,7 @@ int oct_fgread (string fpath,GOESVar &resVar,OFFlags args)
 }
 
 //Here is the wrapper for all the files to read
-int oct_fileread(string fpath,string ftype,string cal,int donav,int channelnum, GOESVar &resVar,OFFlags args)
+int oct_fileread(string fpath,string ftype,string cal,int donav,int channelnum, GOESVar &resVar,OFFlags &args)
 {
     int t;
     if(ftype == "GOES")
