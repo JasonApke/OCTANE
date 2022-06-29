@@ -4,6 +4,9 @@ Optical flow Code for Tracking, Atmospheric motion vector, and Nowcasting Experi
 ## Author
 Jason Apke
 
+## Acknowledgements
+OCTANE was developed under projects funded by the NASA New Investigators Program Award #80NSSC21K0919 (PI: J. Apke) and Office of Naval Research Award #N00014-21-1-2112 (PI: S. Miller).
+
 ## Uses
 OCTANE is designed to ingest GOES-R imagery and output both pixel displacements and navigated speeds (in m/s).  The algorithm is useful for retrieving winds from cloud- and water-vapor-drift motions and tracking features at a near-pixel level.  The algorithm does not contain height assignment internally, though cloud-top heights can be injested for use or output within the optical flow methods.
 
