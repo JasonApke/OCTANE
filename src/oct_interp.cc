@@ -42,11 +42,6 @@ void oct_warpflow(float *u1, float *v1, float *sosarr, float *im1, float *im2,fl
                     int posi = (int) iv+k;
                     long lxyz2 = posi+nxtposj; //lxyz at posi posj, or iv+k, jv+l
                     long lxyz3 = iv2+k + nxtposj2; //lxyz at posi2, posj2
-                    if((lxyz2 >= nxtny) || (lxyz3 >= nxtny) || (lxyz >= nxtny))
-                    {
-                        cout << "Fuck " << lxyz2 << " " << lxyz3 << " " << lxyz << " " << nxtny << endl; 
-                        cout << iv2 << " " << jv2 << " " << iv2+k << " " << posj2 << " " << nx << endl;
-                    }
 
                     //int posi2 = (int) iv2;
                     //int posj2 = (int) jv2;
