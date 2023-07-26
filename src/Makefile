@@ -21,7 +21,7 @@ CUDACXX=nvcc
 
 CXXFLAGS=-g -O3 -I $(NCCPPLOC)/include -I $(NCLOC)/include -I ../include #-fopenmp -DNDEBUG
 #flags specific to cuda files
-CUDACXXFLAGS=-g -O3 -I ../include -I $(CUDALOC)/samples/common/inc #-lineinfo
+CUDACXXFLAGS=-g -O3 -I ../include # -I $(CUDALOC)/samples/common/inc #-lineinfo
 #-lineinfo above gives lines for debugging if needed (when using cuda_memcheck)
 #flags specific to cuda cooperative group files
 CUDACXXCGFLAGS=--std=c++11 -rdc=true $(CUDACXXFLAGS)
