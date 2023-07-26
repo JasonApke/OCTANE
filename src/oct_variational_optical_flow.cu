@@ -9,8 +9,8 @@
 
 //header files from the CUDA samples
 #include <cooperative_groups.h>
-#include <helper_functions.h>
-#include <helper_cuda.h>
+// #include <helper_functions.h>
+// #include <helper_cuda.h>
 using namespace std;
 namespace cg = cooperative_groups;
 
@@ -1418,7 +1418,7 @@ void oct_variational_optical_flow(Image geo1i,Image geo2i,float *CTH,float *uarr
 
     //Wrapped in an error checker in case your device cannot perform cooperative group processing
     //Also checks to see if you allocated too many threads/block for your GPU memory
-    checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocksPerSm, octConjugateGradient, numThreads, sMemSize));
+    cudaGetErrorString(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocksPerSm, octConjugateGradient, numThreads, sMemSize));
     int numSms = 20;
     cout << "Number of Blocks per SM (there are 20 SMs) " << numBlocksPerSm << endl;
     
@@ -1428,7 +1428,7 @@ void oct_variational_optical_flow(Image geo1i,Image geo2i,float *CTH,float *uarr
 
 
     cudaGetDeviceProperties(&deviceProp,dev);
-    checkCudaErrors(cudaLaunchCooperativeKernel((void *)octConjugateGradient, dimGrid,dimBlock, kernelArgs, sMemSize, NULL));
+    cudaGetErrorString(cudaLaunchCooperativeKernel((void *)octConjugateGradient, dimGrid,dimBlock, kernelArgs, sMemSize, NULL));
     cudaDeviceSynchronize();
     //the conjugate gradient algorithm returns the optical flow output, which is stored back in the uarr/varr CPU array
     for(int i=0; i < xityi; i++)
